@@ -1,4 +1,4 @@
-// Juego de la VIDA version multi civilización
+// Juego de la VIDA version I multi civilización
 // Definición de Emoggis usados...
 const EMO_PLAYERS   = ["🧒", "👩🏾‍🦱", "👱‍♀️", "👩🏽‍🦱", "👧", "👱", "👵🏼", "🧓"];
 const EMO_OTHERS1   = ["👿", "😖", "🤬", "😠", "😡", "👹", "👺"];
@@ -175,7 +175,6 @@ class Tablero {
   // Método para dibujar el tablero con un retraso de un segundo entre los grupos de celdas
   dibujarTableroConRetraso() {
     if (this.#dibujando) {
-      console.log("esta dibujando!");
       return; // Ya está dibujando, no hacer nada
     }
     const intervalo = 300; // 300 milisegundos 
@@ -313,40 +312,43 @@ class Tablero {
     this.calcularSiguienteEstadoTablero();
     this.actualizarEstadoTablero();
     this.dibujarTableroConRetraso();
-     // Llama a la función para la próxima iteración después de un retraso
     this.#animacionId = setTimeout(() => {
       this.iterarConDelay(retraso); // Pasa el parámetro "retraso" aquí
     }, retraso);
   }
 
   // Método público para iniciar la animación con un retraso personalizado
-  iniciarAnimacionB(retraso) {
+  iniciarAnimacion(retraso) {
     if (!this.#animacionId) { // Verifica si la animación ya está en marcha
          this.iterarConDelay(retraso); // Pasa el parámetro "retraso" aq  
     }
   }
 }
-
+/* FIN DE CLASES */
+/// MAIN
 let tableroGoLife = 0;
 let tableroExist = false;
 let animacionPausada = false;
 
 // Función para inicializar y comenzar el juego
 function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
-  console.log("newConf: "+newConf);
+  console.log("newConfig: "+newConf);
   if (tableroExist === false) {
+    console.log("Carga 1ra configuración");
     tableroExist = true;
     tableroGoLife = new Tablero(fil, col, "canvas", num, par1, par2, par3, par4);
-    tableroGoLife.iniciarAnimacionB(500*num); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
+    console.log(fil, col, num, par1, par2, par3, par4);
+    tableroGoLife.iniciarAnimacion(350*num); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
   }
   else {
-    if (animacionPausada === true) {
-      if (newConf === false) {
-         tableroGoLife.inicializatTab (fil, col, "canvas", num, par1, par2, par3, par4);
-         console.log("recarga: "+newConf);
-      }
+    if (newConf === true) {
+        tableroGoLife.inicializatTab (fil, col, "canvas", num, par1, par2, par3, par4);
+        console.log("Recarga Nueva Configuración: ");
+        console.log(fil, col, num, par1, par2, par3, par4);
+    }
+    if (animacionPausada == true) {
       // Si la animación está pausada, se reanuda (no es necesario recargar...)
-      tableroGoLife.iniciarAnimacionB(350 * num);
+      tableroGoLife.iniciarAnimacion(350 * num);
       animacionPausada = false;
     
     } else {

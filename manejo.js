@@ -98,10 +98,11 @@ const HD_23_36      = 2; // High Density idem std + un adicional cuando vecinos 
 const HD1_12_2      = 3;
 const LD1_34_4      = 4;
 const LD2_45_5      = 5;
-const LD3_46_6      = 6;
-const LD4_47_7      = 7;
-const LD5_48_8      = 8;
-const USER_DEF      = 9;
+const LD3_56_6      = 6;
+const LD4_67_7      = 7;
+const USER_DEF      = 8;
+let algoritmos      = ["STD_23_3", "HD_23_36", "HD1_12_2", "LD1_34_4",
+                       "LD2_45_5", "LD3_56_6", "LD4_67_7", "USER_DEF" ];
 // 
 let filasTablero    = ALTO_TABLERO;
 let colTablero      = ANCHO_TABLERO;
@@ -129,20 +130,15 @@ initBase();
 //
 // FUNCIONES 
 //
-
-
+// HELP
 // Abre la ventana emergente
 function clickHelp() {
     popup.style.display = 'block';
 }
-
 // Cierra la ventana emergente
 closePopup.addEventListener('click', () => {
     popup.style.display = 'none';
 });
-
-
-
 /**
  * Inicialización de base
  */
@@ -151,12 +147,12 @@ function initBase() {
     defTablero.style.display = "flex";
     defCustom.style.display = "none";
     botonTablero.style.backgroundColor = "lightgreen";
-    botonTablero.textContent = "Datos básicos, confirmar y ARMAR TABLERO";
+    botonTablero.textContent = "Datos básicos: Click para confirmar y ARMAR TABLERO";
     botonTablero.style.display = "block";
     botonGame.style.display = "none";
     customRunning = false;
+    newConfig     = false;
 }
-
 /**
  * Evalúa Datos básicos
  * @returns True (OK) False (ERROR)
@@ -226,12 +222,12 @@ function playTablero() {
                 case HD1_12_2: minAlive=1; maxAlive=2; newLive1=2; newLive2= 2; break; 
                 case LD1_34_4: minAlive=3; maxAlive=4; newLive1=4; newLive2= 4; break;
                 case LD2_45_5: minAlive=4; maxAlive=5; newLive1=5; newLive2= 5; break;
-                case LD3_46_6: minAlive=5; maxAlive=6; newLive1=6; newLive2= 6; break;
-                case LD4_47_7: minAlive=6; maxAlive=7; newLive1=7; newLive2= 7; break;
+                case LD3_56_6: minAlive=5; maxAlive=6; newLive1=6; newLive2= 6; break;
+                case LD4_67_7: minAlive=6; maxAlive=7; newLive1=7; newLive2= 7; break;
                 case USER_DEF:
                     defTablero.style.display = "none";
                     defCustom.style.display = "flex"; // muestro  custom
-                    botonTablero.textContent = 'Algoritmo "A Medida", confirmar y ARMAR TABLERO';
+                    botonTablero.textContent = 'Algoritmo "A Medida": Click para confirmar y ARMAR TABLERO';
                     botonTablero.style.backgroundColor = "lightsteelblue";
                     botonTablero.style.display = "block";
                     customRunning = true;
@@ -255,7 +251,7 @@ function initAll () {
     defTablero.style.display = "none";
     defCustom.style.display = "none"; 
     botonGame.style.display = "block";
-    botonGame.textContent = "PLAY GAME";
+    botonGame.textContent = "INICIAR JUEGO";
     botonGame.style.backgroundColor = "lightgreen";
     newConfig  = true;
     gameActive = false;
@@ -273,18 +269,21 @@ function iniciaGoLife() {
  * Boton Inicia / detiene Juego de la vida
  */ 
 function startGoflive() {
+    let texto = "";
+    if (nroPueblos == 1 ) {texto = "Single: "+algoritmos[algoritmoJgo-1]; }
+    else { texto = "Multi: "+nroPueblos+" niveles"; }
     if (gameActive === true) {
         gameActive = false;
-        botonGame.textContent = "REINICIAR GAME";
+        botonGame.textContent = "RENAUDAR JUEGO ("+texto+")";
         botonGame.style.backgroundColor = "lightgreen";
-        botonTablero.textContent = "RE-ARMAR TABLERO";
+        botonTablero.textContent = "RE-INICIAR TABLERO/JUEGO";
         botonTablero.style.backgroundColor = "lightsteelblue";
         botonTablero.style.display = "block";
         reiniciar       = true;
         iniciaGoLife();        
     } else {
     botonTablero.style.display = "none";
-    botonGame.textContent = "STOP GAME";
+    botonGame.textContent = "DETENER JUEGO ("+texto+")";
     botonGame.style.backgroundColor = "lightsalmon";
     gameActive = true;
     reiniciar  = false;
