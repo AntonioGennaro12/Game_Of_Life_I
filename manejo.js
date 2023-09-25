@@ -101,6 +101,7 @@ const LD2_45_5      = 5;
 const LD3_56_6      = 6;
 const LD4_67_7      = 7;
 const USER_DEF      = 8;
+const TAB_VACIO     = 9;
 let algoritmos      = ["STD_23_3", "HD_23_36", "HD1_12_2", "LD1_34_4",
                        "LD2_45_5", "LD3_56_6", "LD4_67_7", "USER_DEF" ];
 // 
@@ -232,6 +233,9 @@ function playTablero() {
                     botonTablero.style.display = "block";
                     customRunning = true;
                     return;
+                case TAB_VACIO:
+                    nroPueblos = 10; // indica Tablero Vacío
+                    break;    
             } 
         } 
         // si es mayor que 1 va directamente a un esquema fijo de 2 a n (arrancando de 12/2, 23/3 34/4, etc)
@@ -271,7 +275,8 @@ function iniciaGoLife() {
 function startGoflive() {
     let texto = "";
     if (nroPueblos == 1 ) {texto = "Single: "+algoritmos[algoritmoJgo-1]; }
-    else { texto = "Multi: "+nroPueblos+" niveles"; }
+    else if(nroPueblos < 10 ) { texto = "Multi: "+nroPueblos+" niveles"; }
+    else { texto = "Tablero vacío - click p/definir 🧒"; }
     if (gameActive === true) {
         gameActive = false;
         botonGame.textContent = "RENAUDAR JUEGO ("+texto+")";

@@ -18,7 +18,7 @@ class Celula {
   #estado;
   #siguienteEstado;
 
-  constructor(x, y, p, minVM, maxVM, vecRe1, vecRe2) {
+  constructor(x, y, tb, p, minVM, maxVM, vecRe1, vecRe2) {
     this.#x = x;
     this.#y = y;
     this.#nivel = p;
@@ -26,7 +26,8 @@ class Celula {
     this.#maxVecMuere = maxVM;
     this.#vecReNace1 = vecRe1;
     this.#vecRenace2 = vecRe2;
-    this.#estado = Math.random() < 0.5 ? 0 : 1; // Inicializa aleatoriamente como viva o muerta
+    if ( tb === true) {this.#estado = 0 } // Inicializa como célula muerta
+    else {this.#estado = Math.random() < 0.5 ? 0 : 1; } // Inicializa aleatoriamente como viva o muerta
     this.#siguienteEstado = 0; // Estado que tendrá en la siguiente generación
   }
 
@@ -104,6 +105,24 @@ class Celula {
     contexto.fillText(texto, x + lado /8 , y + lado /1.5);
     //contexto.strokeRect(x, y, lado, lado); // agrega líneas de borde a las celdas
   }
+
+  // Metodo para diseñar a mano el tablero
+  dibujarCell(contexto, lado) {
+    const x = this.#x * lado;
+    const y = this.#y * lado;
+    if (this.#estado === 0) { this.#estado = 1;} 
+    else {this.#estado = 0;}
+    contexto.fillStyle = this.#estado === 1 ? "lightgreen" : "black";
+    console.log("x e y: "+this.#x+this.#y);
+    console.log("nivel: "+this.#nivel);
+    contexto.fillRect(x, y, lado, lado);
+    contexto.fillStyle = "red";
+    contexto.font = lado*0.7 + "px sans-serif"; // Ajusta el tamaño de fuente aquí
+    let texto = "";
+    texto = this.#estado === 1 ? EMO_PLAYERS[this.#x%EMO_PLAYERS.length] : EMO_TREE;
+    contexto.fillText(texto, x + lado /8 , y + lado /1.5);
+  }
+
 }
 ///////////////////////////////
 // Clase Tablero
@@ -117,11 +136,13 @@ class Tablero {
   #lado;
   #animacionId;
   #dibujando;
+  #tabVacio
   
   constructor(filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2 ) {
     // llama a una función tipo método / para evira construir de nuevo...
     this.inicializatTab(filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2);
   }
+
   // Método para inicializar desde cualquier lado sin construir
   inicializatTab (filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2) {
     this.#filas = filas;
@@ -131,29 +152,48 @@ class Tablero {
     // Borra todo el contenido del canvas
     this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     this.#people  = people;
+    this.#tabVacio = false;
+    if (people >= 10 ) {
+      this.#people  = 1;
+      this.#tabVacio = true;
+    }
     this.#celulas = [];
     this.#lado = this.#canvas.width / this.#columnas; // Calcula el tamaño de la célula
     this.#dibujando = false;
     this.actualizarTamanioCanvas(); // Ajusta el tamaño del canvas al cargar la página
     window.addEventListener("resize", () => this.actualizarTamanioCanvas()); // Ajusta el tamaño del canvas al cambiar el tamaño de la ventana
     // Inicializar el tablero con células
-    for (let p = 0; p < people ; p++) {
+    for (let p = 0; p < this.#people ; p++) {
+      let tb = this.#tabVacio;
       const newCels = [];
       for (let y = 0; y < this.#filas; y++) {
         for (let x = 0; x < this.#columnas; x++) {
-          if (people == 1 ) {
-            newCels.push(new Celula(x, y, p+1, minVM, maxVM, vecRe1, vecRe2));
+          if (this.#people == 1 ) {
+            newCels.push(new Celula(x, y, tb, p+1, minVM, maxVM, vecRe1, vecRe2));
           }
           else {
-            newCels.push(new Celula(x, y, p, p+1, p+2, p+2, p+2));
+            newCels.push(new Celula(x, y, tb, p, p+1, p+2, p+2, p+2));
           }
-          
         }
       }
       this.#celulas.push(newCels);
     }
+    // Si tablero vacío Agrega un listener de clic al canvas
+    if (this.#tabVacio === true) {
+      this.#canvas.addEventListener("click", (event) => this.handleClick(event));
+    }
   }
 
+  // Función para manejar el clic del mouse
+  handleClick(event) {
+    const rect = this.#canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const clickedRow = Math.floor(y / this.#lado);
+    const clickedCol = Math.floor(x / this.#lado);
+    console.log(`Celda clickeada: Fila ${clickedRow}, Columna ${clickedCol}`);
+    this.#celulas[0][clickedCol+(clickedRow*this.#columnas)].dibujarCell(this.#context, this.#lado);
+  }
   // Método para ajustar el tamaño del canvas al tamaño de la ventana
   actualizarTamanioCanvas() {
     const ancho = window.innerWidth * 0.95; // Ancho ligeramente menor
@@ -177,7 +217,7 @@ class Tablero {
     if (this.#dibujando) {
       return; // Ya está dibujando, no hacer nada
     }
-    const intervalo = 300; // 300 milisegundos 
+    const intervalo = 300 * timeScale; // 300 milisegundos 
     let grupoActual = 0; // Inicializa con el primer grupo de celdas
 
     const dibujarGrupoSiguiente = () => {
@@ -329,16 +369,18 @@ class Tablero {
 let tableroGoLife = 0;
 let tableroExist = false;
 let animacionPausada = false;
+let timeScale = 1;
 
 // Función para inicializar y comenzar el juego
 function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
+  if(num==10){ timeScale = 0.5; } else {timeScale = num;}
   console.log("newConfig: "+newConf);
   if (tableroExist === false) {
     console.log("Carga 1ra configuración");
     tableroExist = true;
     tableroGoLife = new Tablero(fil, col, "canvas", num, par1, par2, par3, par4);
     console.log(fil, col, num, par1, par2, par3, par4);
-    tableroGoLife.iniciarAnimacion(350*num); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
+    tableroGoLife.iniciarAnimacion(350 * timeScale); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
   }
   else {
     if (newConf === true) {
@@ -348,7 +390,7 @@ function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
     }
     if (animacionPausada == true) {
       // Si la animación está pausada, se reanuda (no es necesario recargar...)
-      tableroGoLife.iniciarAnimacion(350 * num);
+      tableroGoLife.iniciarAnimacion(350 * timeScale);
       animacionPausada = false;
     
     } else {
@@ -358,3 +400,4 @@ function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
     }
   }  
 }
+
