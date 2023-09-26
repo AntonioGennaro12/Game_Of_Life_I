@@ -136,7 +136,9 @@ class Tablero {
   #lado;
   #animacionId;
   #dibujando;
-  #tabVacio
+  #tabVacio;
+  #listenerInstalado = false;
+
   
   constructor(filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2 ) {
     // llama a una función tipo método / para evira construir de nuevo...
@@ -178,14 +180,16 @@ class Tablero {
       }
       this.#celulas.push(newCels);
     }
-    // Si tablero vacío Agrega un listener de clic al canvas
-    if (this.#tabVacio === true) {
+    // Si tablero vacío y no instalado agrega un listener de click al canvas
+    if ((this.#tabVacio == 1)&&(this.#listenerInstalado === false) ){
       this.#canvas.addEventListener("click", (event) => this.handleClick(event));
+      this.#listenerInstalado = true;
     }
   }
-
+  
   // Función para manejar el clic del mouse
   handleClick(event) {
+    if(this.#tabVacio === true) {
     const rect = this.#canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -193,6 +197,7 @@ class Tablero {
     const clickedCol = Math.floor(x / this.#lado);
     console.log(`Celda clickeada: Fila ${clickedRow}, Columna ${clickedCol}`);
     this.#celulas[0][clickedCol+(clickedRow*this.#columnas)].dibujarCell(this.#context, this.#lado);
+    }
   }
   // Método para ajustar el tamaño del canvas al tamaño de la ventana
   actualizarTamanioCanvas() {
@@ -392,6 +397,7 @@ function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
       // Si la animación está pausada, se reanuda (no es necesario recargar...)
       tableroGoLife.iniciarAnimacion(350 * timeScale);
       animacionPausada = false;
+      console.log("ahora reaunuda....");
     
     } else {
       tableroGoLife.cancelarAnimacion();

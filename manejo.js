@@ -171,7 +171,6 @@ if (( (((filasTablero = parseInt(misFilas.value))    <  5 ) || (filasTablero > 5
         }
         else { return (true);}
     }
-
 /**
  * Evalúa datos Custom
  * @returns True (OK) or False (ERROR) 
@@ -189,7 +188,6 @@ function evalCustomData() {
     }
     else { return (true); }
 }
-
 /**
  * funcion llamada al clikear para aplicar la config o reiniciar
  * @returns nothing
@@ -238,14 +236,13 @@ function playTablero() {
                     break;    
             } 
         } 
-        // si es mayor que 1 va directamente a un esquema fijo de 2 a n (arrancando de 12/2, 23/3 34/4, etc)
+       // si es mayor que 1 va directamente a un esquema fijo de 2 a n (arrancando de 12/2, 23/3 34/4, etc)
         console.log("fin toma de datos normal");
         customRunning = false;
         initAll();
         }
     }
 }
-
 /**
  * Completa la inicialización
  */
