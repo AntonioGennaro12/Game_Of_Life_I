@@ -114,6 +114,7 @@ let minAlive        = 2;  // Si está vivo, menor que este valor muere
 let maxAlive        = 3;  // Si esta vivo, Mayor que este valor muere
 let newLive1        = 3;  // si está muerto, igual a este valor renace
 let newLive2        = 3;  // Adicional: si esta muerto igual a este valor renace tambien
+let parGol          = [minAlive, maxAlive, newLive1, newLive2];
 // Tamaños
 let anchoTabla      = 0;
 let altoCelda       = 0;
@@ -126,6 +127,7 @@ let customRunning   = false;
 let gameActive      = false; 
 let reiniciar       = false;
 let newConfig       = false;
+let tabVacioF       = false;
 //
 initBase();
 //
@@ -232,7 +234,7 @@ function playTablero() {
                     customRunning = true;
                     return;
                 case TAB_VACIO:
-                    nroPueblos = 10; // indica Tablero Vacío
+                    nroPueblos  = 10; // indica Tablero Vacío
                     break;    
             } 
         } 
@@ -254,8 +256,13 @@ function initAll () {
     botonGame.style.display = "block";
     botonGame.textContent = "INICIAR JUEGO";
     botonGame.style.backgroundColor = "lightgreen";
+    parGol[0]   = minAlive;
+    parGol[1]   = maxAlive;
+    parGol[2]   = newLive1;
+    parGol[3]   = newLive2;
+    if (nroPueblos == 10 ) {tabVacioF    = true;}  
     newConfig  = true;
-    gameActive = false;
+    gameActive = false;     
 }
 
 /**
@@ -263,7 +270,8 @@ function initAll () {
  */
 function iniciaGoLife() {
     miCanvas.style.display = "block";
-    iniciarJuego(newConfig, filasTablero, colTablero, nroPueblos, minAlive, maxAlive, newLive1, newLive2);
+    iniciarJuego(newConfig, filasTablero, colTablero, nroPueblos, parGol);
+    console.log("tabVacio: "+tabVacioF);
     newConfig = false;
 }
 /**
@@ -274,21 +282,22 @@ function startGoflive() {
     if (nroPueblos == 1 ) {texto = "Single: "+algoritmos[algoritmoJgo-1]; }
     else if(nroPueblos < 10 ) { texto = "Multi: "+nroPueblos+" niveles"; }
     else { texto = "Tablero vacío - click p/definir 🧒"; }
-    if (gameActive === true) {
+    if ((gameActive === true) || (tabVacioF === true)) {
         gameActive = false;
+        tabVacioF = false;
         botonGame.textContent = "RENAUDAR JUEGO ("+texto+")";
         botonGame.style.backgroundColor = "lightgreen";
         botonTablero.textContent = "RE-INICIAR TABLERO/JUEGO";
         botonTablero.style.backgroundColor = "lightsteelblue";
         botonTablero.style.display = "block";
-        reiniciar       = true;
+        reiniciar  = true;
         iniciaGoLife();        
     } else {
-    botonTablero.style.display = "none";
-    botonGame.textContent = "DETENER JUEGO ("+texto+")";
-    botonGame.style.backgroundColor = "lightsalmon";
-    gameActive = true;
-    reiniciar  = false;
-    iniciaGoLife();   
+        botonTablero.style.display = "none";
+        botonGame.textContent = "DETENER JUEGO ("+texto+")";
+        botonGame.style.backgroundColor = "lightsalmon";
+        gameActive = true;
+        reiniciar  = false;
+        iniciaGoLife();   
     }
 }

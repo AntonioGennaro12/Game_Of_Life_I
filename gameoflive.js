@@ -138,15 +138,14 @@ class Tablero {
   #dibujando;
   #tabVacio;
   #listenerInstalado = false;
-
   
-  constructor(filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2 ) {
+  constructor(filas, columnas, canvasId, people, pargol ) {
     // llama a una función tipo método / para evira construir de nuevo...
-    this.inicializatTab(filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2);
+    this.inicializatTab(filas, columnas, canvasId, people, pargol);
   }
 
   // Método para inicializar desde cualquier lado sin construir
-  inicializatTab (filas, columnas, canvasId, people, minVM, maxVM, vecRe1, vecRe2) {
+  inicializatTab (filas, columnas, canvasId, people, pargol) {
     this.#filas = filas;
     this.#columnas = columnas;
     this.#canvas = document.getElementById(canvasId);
@@ -171,7 +170,7 @@ class Tablero {
       for (let y = 0; y < this.#filas; y++) {
         for (let x = 0; x < this.#columnas; x++) {
           if (this.#people == 1 ) {
-            newCels.push(new Celula(x, y, tb, p+1, minVM, maxVM, vecRe1, vecRe2));
+            newCels.push(new Celula(x, y, tb, p+1, pargol[0], pargol[1], pargol[2], pargol[3]));
           }
           else {
             newCels.push(new Celula(x, y, tb, p, p+1, p+2, p+2, p+2));
@@ -375,35 +374,50 @@ let tableroGoLife = 0;
 let tableroExist = false;
 let animacionPausada = false;
 let timeScale = 1;
+/**
+ *  Pausar en caso de Tablero Vacío
+ */
+function tabVacPausar () {
+  tableroGoLife.cancelarAnimacion();
+  animacionPausada = true;
+  console.log("animación pausada automaticamente");      
+}
+
 
 // Función para inicializar y comenzar el juego
-function iniciarJuego(newConf, fil, col, num, par1, par2, par3, par4) {
-  if(num==10){ timeScale = 0.5; } else {timeScale = num;}
+function iniciarJuego(newConf, fil, col, num, pargol) {
+  if(num==10){ timeScale = 0.5;} else {timeScale = num;}
   console.log("newConfig: "+newConf);
   if (tableroExist === false) {
     console.log("Carga 1ra configuración");
     tableroExist = true;
-    tableroGoLife = new Tablero(fil, col, "canvas", num, par1, par2, par3, par4);
-    console.log(fil, col, num, par1, par2, par3, par4);
+    tableroGoLife = new Tablero(fil, col, "canvas", num, pargol);
+    console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);
     tableroGoLife.iniciarAnimacion(350 * timeScale); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
+    if (num == 10) {
+      setTimeout(tabVacPausar, 500);
+    }
   }
   else {
     if (newConf === true) {
-        tableroGoLife.inicializatTab (fil, col, "canvas", num, par1, par2, par3, par4);
+        tableroGoLife.inicializatTab (fil, col, "canvas", num, pargol);
         console.log("Recarga Nueva Configuración: ");
-        console.log(fil, col, num, par1, par2, par3, par4);
+        console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);
+        if (num == 10) {
+          setTimeout(tabVacPausar, 500);
+        }
     }
     if (animacionPausada == true) {
       // Si la animación está pausada, se reanuda (no es necesario recargar...)
       tableroGoLife.iniciarAnimacion(350 * timeScale);
       animacionPausada = false;
       console.log("ahora reaunuda....");
-    
+      console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);   
     } else {
       tableroGoLife.cancelarAnimacion();
       animacionPausada = true;
-      console.log("animación pasa a pausada");      
-    }
+      console.log("animación pasa a pausada");  
+      }
   }  
 }
 
