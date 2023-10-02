@@ -12,26 +12,26 @@
         <div class="popup-content">
             <span class="close" id="close-popup">&times;</span>
             <h2>Ayuda para el Juego de la Vida de Conway</h2>
-            <p>1. Elige la cantidad de Filas y Columnas del Tablero.</p>
-            <p>2. Selecciona la cantidad de Civilizaciones que quieres mostrar (1 a 6).</p>
-            <p> .. Si eliges una (1) civilización, entonces puedes elegir el Algoritmo. </p>
+            <p>1. Elige la cantidad de Filas y Columnas del Tablero, cuantas más mejor.</p>
+            <p>2. Selecciona la cantidad de Colonias que quieres mostrar (1 a 7) o sino un</p>
+            <p> .. Tablero "vacío" dónde ubicar celdas vivas y ver como evolucionan. </p>
+            <p> .. Si eliges una (1) colonia o "Tab. Vacío", podrás elegir el Algoritmo. </p>
             <p> ... Hay 7 algoritmos pre-definidos y una opción a Definir por el Usuario.</p>
             <p> ... Al seleccionar "User Defined" y confirmar, se despliega otro menú:</p>
-            <p> .... - 1er valor: Mínimo de Vecinos para permanecer Vivo</p>
-            <p> .... - 2do valor: Máximo de Vecinos para permanecer Vivo</p>
+            <p> .... - 1er valor: Mínimo número de Vecinos para permanecer Vivo</p>
+            <p> .... - 2do valor: Máximo número de Vecinos para permanecer Vivo</p>
             <p> .... - 3er valor: Número de Vecinos para renacer</p>
             <p> .... - 4to valor: Opcional. 2do Número de Vecinos para renacer,</p>
             <p> ...... si no usas el 2do valor, cargar el mismo valor que el 3ro</p>
-            <p> ... Por último está la opción de "Tablero Vacío" en la que se pueden ubicar </p>
-            <p> .... células vivas y ver como evolucionanan con el último algoritmo elegido.</p>
-            <p> .... Se detiene el juego, haciendo click sobre la celda se activan las que</p>
-            <p> ..... se desean y luego se renauda para ver su evolución.</p>
-            <p> .. Si es más de una civilización (2 a 6), entonces se aplica un algorimo fijo</p>
-            <p> ... en forma progresiva: 12/2, 23/3, 34/4, 45/5, 56/6 y 67/7, según el número.</p>
+            <p> ... En la opción "Tablero Vacío" se hace click sobre la celda para activar   </p>
+            <p> .... o desactivar y se renauda para ver su evolución. Mientras están en /p>
+            <p> ..... movimiento se puede clickear para agregar o quitar y ver qué sucede.</p>
+            <p> .. Si es más de una civilización (2 a 7), se aplica un algorimo fijo en forma</p>
+            <p> ... progresiva: 23/3, 23/36, 12/2, 12/24, ...34/46, según el número de colonias.</p>
             <p>3. Una vez configurado, confirmar y aparecerá "Play Game"</p>
             <p>4. Con el botón "Play Game" se inicia y detiene el "Juego"</p>
-            <p>5. Cuando se lo detiene, puede ser reiniciado con la misma configuración</p>
-            <p> .. o bién re-armar el tablero y cambiar la configuración...</p>
+            <p>5. Cuando se lo detiene, puede ser reiniciado desde dónde quedó con la misma</p>
+            <p> .. configuración, o bién re-armar el tablero y cambiar la configuración...</p>
             <p> ... Fin. (click en "x" para cerrar).   ©AG2023</p>       
         </div>
     </div>
@@ -52,7 +52,16 @@
                 </div>
                 <div class="cont-config">
                     <label for="peoples">Nro de Civilizaciones</label>
-                    <input type="number" min="1" max="6" value="1" id="peoples" placeholder="nro civilizaciones">
+                    <select id="peoples" name="Nro Civilizaciones">
+                        <option value=1>1 colonia</option>
+                        <option value=2>2 colonias</option>
+                        <option value=3>3 colonias</option>
+                        <option value=4>4 colonias</option>
+                        <option value=5>5 colonias</option>
+                        <option value=6>6 colonias</option>
+                        <option value=7>7 colonias</option>
+                        <option value=8>Tabl. Vacio</option>
+                    </select>
                 </div>
                 <div class="cont-config">
                     <label for="opt_alg">Opción de Algoritmo</label>
@@ -60,12 +69,11 @@
                         <option value=1>23/3 (std)</option>
                         <option value=2>23/36 (HD)</option>
                         <option value=3>12/2 (HD1)</option>
-                        <option value=4>34/4 (LD1)</option>
-                        <option value=5>45/5 (LD2)</option>
-                        <option value=6>56/6 (LD3)</option>
-                        <option value=7>67/7 (LD4)</option>
+                        <option value=4>12/24 (HD2)</option>
+                        <option value=5>12/33 (HD3)</option>
+                        <option value=6>34/34 (ST2)</option>
+                        <option value=7>34/46 (ST3)</option>
                         <option value=8>User Defined</option>
-                        <option value=9>Tabl. Vacio</option>
                     </select>
                 </div>
             </div>

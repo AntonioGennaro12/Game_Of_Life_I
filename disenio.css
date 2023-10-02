@@ -16,14 +16,14 @@ body {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 9999; /* Asegura que aparezca por encima de todo */
-}
+    }
 
 .popup-content {
     background-color: #e4eee1;
     width: 80%;
-    max-width: 400px;
+    max-width: 480px;
     margin: 10%;
-    margin-top: 5%;
+    margin-top: 3%;
     padding: 20px;
     font-size: 12px;
     border-radius: 5px;
@@ -33,7 +33,7 @@ body {
 
 .close {
     position: absolute;
-    top: 10px;
+    top: 2px;
     right: 10px;
     font-size: 20px;
     cursor: pointer;
@@ -103,15 +103,15 @@ body {
 /*** *****/
 
 label {
-    width: 60%;
+    width: 55%;
     text-align: center;
 }
 input {
-    width: 40%;
+    width: 45%;
 }
 select {
     text-align: center;
-    width: 40%;
+    width: 45%;
 }
 
 /*** BOTONES ****************/

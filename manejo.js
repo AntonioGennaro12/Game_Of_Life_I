@@ -76,8 +76,6 @@ console.log('Sistema Operativo:', operatingSystem);
 // Toma ancho y alto disponible
 let limiteX         = window.innerWidth;
 let limiteY         = window.innerHeight;
-//if (limiteX > 1000 ) { juegoTablero.style.width = 800 + "px"; }
-//else { juegoTablero.style.width = (limiteX*0.98) + "px"; }
 //////////
 let gameRunning     = false;
 //
@@ -95,15 +93,15 @@ misPueblos.value    = 1;
 // Algoritmo
 const STD_23_3      = 1; // Standard
 const HD_23_36      = 2; // High Density idem std + un adicional cuando vecinos = 6
-const HD1_12_2      = 3;
-const LD1_34_4      = 4;
-const LD2_45_5      = 5;
-const LD3_56_6      = 6;
-const LD4_67_7      = 7;
+const HD_12_22      = 3;
+const HD_12_24      = 4;
+const HD_12_33      = 5;
+const SD_34_34      = 6;
+const SD_34_46      = 7;
 const USER_DEF      = 8;
-const TAB_VACIO     = 9;
-let algoritmos      = ["STD_23_3", "HD_23_36", "HD1_12_2", "LD1_34_4",
-                       "LD2_45_5", "LD3_56_6", "LD4_67_7", "USER_DEF" ];
+let algoritmos      = ["STD_23_3", "HD_23_36", "HD_12_22", "HD_12_24",
+                       "HD_12_33", "SD_34_34", "SD_34_46", "USER_DEF" ];
+const TAB_VACIO     = 8;
 // 
 let filasTablero    = ALTO_TABLERO;
 let colTablero      = ANCHO_TABLERO;
@@ -114,7 +112,13 @@ let minAlive        = 2;  // Si está vivo, menor que este valor muere
 let maxAlive        = 3;  // Si esta vivo, Mayor que este valor muere
 let newLive1        = 3;  // si está muerto, igual a este valor renace
 let newLive2        = 3;  // Adicional: si esta muerto igual a este valor renace tambien
-let parGol          = [minAlive, maxAlive, newLive1, newLive2];
+let parGoLife       = [minAlive, maxAlive, newLive1, newLive2, // estos valores cambián
+                        2, 3, 3, 6,  // los demas quedan fijos
+                        1, 2, 2, 2,  // arrancando en 2336 y 1222 y así
+                        1, 2, 2, 4,
+                        1, 2, 3, 3,
+                        3, 4, 3, 4,
+                        3, 4, 4, 6 ];
 // Tamaños
 let anchoTabla      = 0;
 let altoCelda       = 0;
@@ -163,8 +167,8 @@ function initBase() {
 function evalBasicData() {
 if (( (((filasTablero = parseInt(misFilas.value))    <  5 ) || (filasTablero > 50 ))  ||
       (((colTablero = parseInt(misColumnas.value))   < 10 ) || (colTablero  > 100 ))) ||
-      ((((nroPueblos = parseInt(misPueblos.value))    <  1 ) || (nroPueblos   > 6 ))   ||
-       (((algoritmoJgo = parseInt(miAlgoritmo.value)) <  1 ) || (algoritmoJgo > 9 ))) ) {
+      ((((nroPueblos = parseInt(misPueblos.value))    <  1 ) || (nroPueblos   > 9 ))   ||
+       (((algoritmoJgo = parseInt(miAlgoritmo.value)) <  1 ) || (algoritmoJgo > 8 ))) ) {
           botonTablero.textContent = "Algunos valores no están permitidos, revisar datos y ARMAR TABLERO";
           botonTablero.style.backgroundColor = "lightsalmon"; 
           customRunning = false;
@@ -216,15 +220,15 @@ function playTablero() {
         ///
         defTablero.style.display = "flex";
         if (evalBasicData() === true ) {
-        if (nroPueblos == 1) {
+        if ((nroPueblos == 1) || (nroPueblos == TAB_VACIO) ){
             switch (algoritmoJgo) {
-                case STD_23_3: minAlive=2; maxAlive=3; newLive1=3; newLive2= 3; break; 
-                case HD_23_36: minAlive=2; maxAlive=3; newLive1=3; newLive2= 6; break;
-                case HD1_12_2: minAlive=1; maxAlive=2; newLive1=2; newLive2= 2; break; 
-                case LD1_34_4: minAlive=3; maxAlive=4; newLive1=4; newLive2= 4; break;
-                case LD2_45_5: minAlive=4; maxAlive=5; newLive1=5; newLive2= 5; break;
-                case LD3_56_6: minAlive=5; maxAlive=6; newLive1=6; newLive2= 6; break;
-                case LD4_67_7: minAlive=6; maxAlive=7; newLive1=7; newLive2= 7; break;
+                case STD_23_3: minAlive=2; maxAlive=3; newLive1=3; newLive2=3; break; 
+                case HD_23_36: minAlive=2; maxAlive=3; newLive1=3; newLive2=6; break;
+                case HD_12_22: minAlive=1; maxAlive=2; newLive1=2; newLive2=2; break; 
+                case HD_12_24: minAlive=1; maxAlive=2; newLive1=2; newLive2=4; break;
+                case HD_12_33: minAlive=1; maxAlive=2; newLive1=3; newLive2=3; break;
+                case SD_34_34: minAlive=3; maxAlive=4; newLive1=3; newLive2=4; break;
+                case SD_34_46: minAlive=3; maxAlive=4; newLive1=4; newLive2=6; break;
                 case USER_DEF:
                     defTablero.style.display = "none";
                     defCustom.style.display = "flex"; // muestro  custom
@@ -233,12 +237,10 @@ function playTablero() {
                     botonTablero.style.display = "block";
                     customRunning = true;
                     return;
-                case TAB_VACIO:
-                    nroPueblos  = 10; // indica Tablero Vacío
-                    break;    
             } 
         } 
-       // si es mayor que 1 va directamente a un esquema fijo de 2 a n (arrancando de 12/2, 23/3 34/4, etc)
+       // si es mayor que 1 va directamente a un esquema fijo de 2 a n (arrancando de 23/3, 23/36, etc)
+        else { minAlive=2; maxAlive=3; newLive1=3; newLive2=3; } 
         console.log("fin toma de datos normal");
         customRunning = false;
         initAll();
@@ -256,11 +258,11 @@ function initAll () {
     botonGame.style.display = "block";
     botonGame.textContent = "INICIAR JUEGO";
     botonGame.style.backgroundColor = "lightgreen";
-    parGol[0]   = minAlive;
-    parGol[1]   = maxAlive;
-    parGol[2]   = newLive1;
-    parGol[3]   = newLive2;
-    if (nroPueblos == 10 ) {tabVacioF    = true;}  
+    parGoLife[0]   = minAlive;
+    parGoLife[1]   = maxAlive;
+    parGoLife[2]   = newLive1;
+    parGoLife[3]   = newLive2;
+    if (nroPueblos == TAB_VACIO ) {tabVacioF    = true;}  
     newConfig  = true;
     gameActive = false;     
 }
@@ -270,8 +272,7 @@ function initAll () {
  */
 function iniciaGoLife() {
     miCanvas.style.display = "block";
-    iniciarJuego(newConfig, filasTablero, colTablero, nroPueblos, parGol);
-    console.log("tabVacio: "+tabVacioF);
+    iniciarJuego(newConfig, filasTablero, colTablero, nroPueblos, algoritmoJgo, parGoLife);
     newConfig = false;
 }
 /**
@@ -280,7 +281,7 @@ function iniciaGoLife() {
 function startGoflive() {
     let texto = "";
     if (nroPueblos == 1 ) {texto = "Single: "+algoritmos[algoritmoJgo-1]; }
-    else if(nroPueblos < 10 ) { texto = "Multi: "+nroPueblos+" niveles"; }
+    else if(nroPueblos < TAB_VACIO ) { texto = "Multi: "+nroPueblos+" niveles"; }
     else { texto = "Tablero vacío - click p/definir 🧒"; }
     if ((gameActive === true) || (tabVacioF === true)) {
         gameActive = false;

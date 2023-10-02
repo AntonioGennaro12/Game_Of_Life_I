@@ -1,31 +1,67 @@
 // Juego de la VIDA version I multi civilización
 // Definición de Emoggis usados...
 const EMO_PLAYERS   = ["🧒", "👩🏾‍🦱", "👱‍♀️", "👩🏽‍🦱", "👧", "👱", "👵🏼", "🧓"];
+const EMO_ANIMALS   = ["🐶", "🐱", "🐯", "🐻", "🐨", "🐰", "🐷", "🐴"];
 const EMO_OTHERS1   = ["👿", "😖", "🤬", "😠", "😡", "👹", "👺"];
 const EMO_OTHERS2   = ["🧛", "🦇", "☠️", "🧟", "🕷️", "💀"];
 const EMO_DEATH     = "⚰️";
 const EMO_TREE      = "🌲";
+const EMO_BLACK     = "🐦‍⬛";
 const EMO_BARRIER   = "🚧";
 // Clase Celula
 class Celula {
   #x;
   #y;
   #nivel;
-  #minVecMuere;   // menos vec, se muere
-  #maxVecMuere;   // mas vec, se muere
-  #vecReNace1;    // igual a este renace 
-  #vecRenace2;    // igual a este renace tambien
+  #algoEleg;
   #estado;
   #siguienteEstado;
-
-  constructor(x, y, tb, p, minVM, maxVM, vecRe1, vecRe2) {
+  #calcSigEst=[];
+  #backAlive;
+  #backDeath;
+  #emoAlive;
+  #emoDeath;
+  
+  constructor(x, y, tb, p, algo, minVM, maxVM, vecRe1, vecRe2) {
     this.#x = x;
-    this.#y = y;
+    this.#y = y; 
     this.#nivel = p;
-    this.#minVecMuere = minVM;
-    this.#maxVecMuere = maxVM;
-    this.#vecReNace1 = vecRe1;
-    this.#vecRenace2 = vecRe2;
+    this.#algoEleg = algo;
+    switch (algo) {
+      case 1:   this.#backAlive = "lightgreen"; this.#backDeath = "black"; 
+                this.#emoAlive = EMO_PLAYERS[this.#x%EMO_PLAYERS.length] ;
+                this.#emoDeath = EMO_TREE; break;
+      case 2:   this.#backAlive = "yellowgreen"; this.#backDeath = "black";
+                this.#emoAlive = EMO_OTHERS1[this.#x%EMO_OTHERS1.length];
+                this.#emoDeath = EMO_DEATH; break;
+      case 3:   this.#backAlive = "lightblue"; this.#backDeath = "black"; 
+                this.#emoAlive = EMO_OTHERS2[this.#x%EMO_OTHERS2.length];
+                this.#emoDeath = EMO_DEATH; break;
+      case 4:   this.#backAlive = "lightsalmon"; this.#backDeath = "black"; 
+                this.#emoAlive = EMO_OTHERS2[this.#x%EMO_OTHERS2.length];
+                this.#emoDeath = EMO_DEATH; break;
+      case 5:   this.#backAlive = "blueviolet"; this.#backDeath = "black"; 
+                this.#emoAlive = EMO_OTHERS2[this.#x%EMO_OTHERS2.length];
+                this.#emoDeath = EMO_DEATH; break;
+      case 6:   this.#backAlive = "lightgray"; this.#backDeath = "black";
+                this.#emoAlive = EMO_OTHERS2[this.#x%EMO_OTHERS2.length];
+                this.#emoDeath = EMO_DEATH; break;
+      case USER_DEF:
+                  this.#backAlive = "lightgreen"; this.#backDeath = "black"; 
+                  this.#emoAlive = EMO_ANIMALS[this.#x%EMO_ANIMALS.length] ;
+                  this.#emoDeath = EMO_BLACK; break;
+      default:  this.#backAlive = "gray"; this.#backDeath = "black";   // 7 o más (excepto que esté antes)
+                this.#emoAlive = EMO_OTHERS2[this.#x%EMO_OTHERS2.length];
+                this.#emoDeath = EMO_DEATH; break;
+    }
+    for (let i=0; i<9 ; i++) { // calcula siguiente estado si esta en "0"
+      this.#calcSigEst.push(0); // carga primer valor en "0"
+      if ((vecRe1 == i) || (vecRe2 == i)) {this.#calcSigEst[i] = 1;} // modifica a 1
+    }
+    for (let j=0; j<9 ; j++) { // calcula siguiente estado si esta en "1"
+      this.#calcSigEst.push(1); // carga primer valor en "0"
+      if ((j < minVM) || (j > maxVM)) {this.#calcSigEst[j+9] = 0;} // modifica a 0 
+    }
     if ( tb === true) {this.#estado = 0 } // Inicializa como célula muerta
     else {this.#estado = Math.random() < 0.5 ? 0 : 1; } // Inicializa aleatoriamente como viva o muerta
     this.#siguienteEstado = 0; // Estado que tendrá en la siguiente generación
@@ -57,23 +93,11 @@ class Celula {
 
   // Método para calcular el siguiente estado de la célula
   calcularSiguienteEstado(vecinosVivos) {
-    if (this.#estado === 1) {
-      //if (vecinosVivos < 2 || vecinosVivos > 3) {
-      if (vecinosVivos < this.#minVecMuere || vecinosVivos > this.#maxVecMuere) {
-        this.#siguienteEstado = 0; // Muere por soledad o superpoblación
-      } else {
-        this.#siguienteEstado = 1; // Permanece viva
-      }
-    } else {
-      if ((vecinosVivos === this.#vecReNace1) || (vecinosVivos === this.#vecRenace2)) {  //this.#vecReNace
-        this.#siguienteEstado = 1; // Nace por reproducción
-      } else {
-        this.#siguienteEstado = 0; // Permanece muerta
-      }
-    }
+    //this.#siguienteEstado = this.#estado; // debug
+    this.#siguienteEstado = this.#calcSigEst[(this.#estado*9)+vecinosVivos];
   }
 
-   // Método para actualizar el estado de la célula
+  // Método para actualizar el estado de la célula
   actualizarEstado() {
     this.#estado = this.#siguienteEstado;
   }
@@ -82,28 +106,12 @@ class Celula {
   dibujar(contexto, lado) {
     const x = this.#x * lado;
     const y = this.#y * lado;
-    if (this.#nivel == 0 ) { 
-      contexto.fillStyle = this.#estado === 1 ? "lightsalmon" : "black";
-    } else if (this.#nivel == 1) {
-      contexto.fillStyle = this.#estado === 1 ? "lightgreen" : "black";
-    } else if (this.#nivel == 2) {
-      contexto.fillStyle = this.#estado === 1 ? "blueviolet" : "black";
-    } else {
-      contexto.fillStyle = this.#estado === 1 ? "grey" : "black";
-    }
+    contexto.fillStyle = this.#estado === 1 ? this.#backAlive : this.#backDeath; 
     contexto.fillRect(x, y, lado, lado);
-    contexto.fillStyle = "red";
     contexto.font = lado*0.7 + "px sans-serif"; // Ajusta el tamaño de fuente aquí
     let texto = "";
-    if (this.#nivel == 0 ) { 
-      texto = this.#estado === 1 ? EMO_OTHERS1[this.#x%EMO_OTHERS1.length] : EMO_DEATH;
-    } else if (this.#nivel == 1) {
-      texto = this.#estado === 1 ? EMO_PLAYERS[this.#x%EMO_PLAYERS.length] : EMO_TREE;
-    } else {
-      texto = this.#estado === 1 ? EMO_OTHERS2[this.#x%EMO_OTHERS2.length] : EMO_DEATH;
-    }
+    texto = this.#estado == 1 ? this.#emoAlive : this.#emoDeath;
     contexto.fillText(texto, x + lado /8 , y + lado /1.5);
-    //contexto.strokeRect(x, y, lado, lado); // agrega líneas de borde a las celdas
   }
 
   // Metodo para diseñar a mano el tablero
@@ -112,17 +120,14 @@ class Celula {
     const y = this.#y * lado;
     if (this.#estado === 0) { this.#estado = 1;} 
     else {this.#estado = 0;}
-    contexto.fillStyle = this.#estado === 1 ? "lightgreen" : "black";
-    console.log("x e y: "+this.#x+this.#y);
-    console.log("nivel: "+this.#nivel);
+    contexto.fillStyle = this.#estado === 1 ? this.#backAlive : this.#backDeath;
+    console.log("x e y: "+this.#x+this.#y);   // debug
     contexto.fillRect(x, y, lado, lado);
-    contexto.fillStyle = "red";
     contexto.font = lado*0.7 + "px sans-serif"; // Ajusta el tamaño de fuente aquí
     let texto = "";
-    texto = this.#estado === 1 ? EMO_PLAYERS[this.#x%EMO_PLAYERS.length] : EMO_TREE;
+    texto = this.#estado == 1 ? this.#emoAlive : this.#emoDeath;
     contexto.fillText(texto, x + lado /8 , y + lado /1.5);
   }
-
 }
 ///////////////////////////////
 // Clase Tablero
@@ -132,20 +137,20 @@ class Tablero {
   #canvas;
   #context;
   #people;
+  #algoritmo;
   #celulas;
   #lado;
   #animacionId;
   #dibujando;
   #tabVacio;
   #listenerInstalado = false;
-  
-  constructor(filas, columnas, canvasId, people, pargol ) {
+  //
+  constructor(filas, columnas, canvasId, people, algorit, pargol ) {
     // llama a una función tipo método / para evira construir de nuevo...
-    this.inicializatTab(filas, columnas, canvasId, people, pargol);
+    this.inicializatTab(filas, columnas, canvasId, people, algorit, pargol);
   }
-
-  // Método para inicializar desde cualquier lado sin construir
-  inicializatTab (filas, columnas, canvasId, people, pargol) {
+    // Método para inicializar desde cualquier lado sin construir
+  inicializatTab (filas, columnas, canvasId, people, algo, pargol) {
     this.#filas = filas;
     this.#columnas = columnas;
     this.#canvas = document.getElementById(canvasId);
@@ -153,8 +158,9 @@ class Tablero {
     // Borra todo el contenido del canvas
     this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     this.#people  = people;
+    this.#algoritmo = algo;
     this.#tabVacio = false;
-    if (people >= 10 ) {
+    if (people >= TAB_VACIO ) {
       this.#people  = 1;
       this.#tabVacio = true;
     }
@@ -170,10 +176,11 @@ class Tablero {
       for (let y = 0; y < this.#filas; y++) {
         for (let x = 0; x < this.#columnas; x++) {
           if (this.#people == 1 ) {
-            newCels.push(new Celula(x, y, tb, p+1, pargol[0], pargol[1], pargol[2], pargol[3]));
+            newCels.push(new Celula(x, y, tb, p, algo, pargol[0], pargol[1], pargol[2], pargol[3]));
           }
           else {
-            newCels.push(new Celula(x, y, tb, p, p+1, p+2, p+2, p+2));
+            newCels.push(new Celula(x, y, tb, p, p+1,
+                    pargol[p*4], pargol[(p*4)+1], pargol[(p*4)+2], pargol[(p*4)+3]));
           }
         }
       }
@@ -221,7 +228,7 @@ class Tablero {
     if (this.#dibujando) {
       return; // Ya está dibujando, no hacer nada
     }
-    const intervalo = 300 * timeScale; // 300 milisegundos 
+    const intervalo = INTERV_DIBUJA; // 400 milisegundos 
     let grupoActual = 0; // Inicializa con el primer grupo de celdas
 
     const dibujarGrupoSiguiente = () => {
@@ -229,7 +236,6 @@ class Tablero {
         for (const celula of this.#celulas[grupoActual]) {
           celula.dibujar(this.#context, this.#lado);
         }
-
         grupoActual++; // Pasar al siguiente grupo
         setTimeout(dibujarGrupoSiguiente, intervalo); // Llamar recursivamente después del retraso
       } else {
@@ -243,7 +249,6 @@ class Tablero {
     dibujarGrupoSiguiente();
   }
 
-
   // Método para calcular el siguiente estado de todas las células en el tablero
   calcularSiguienteEstadoTablero() {
     for (let p = 0; p < this.#people; p++ ) {
@@ -252,14 +257,16 @@ class Tablero {
           const vecinosVivos = this.contarVecinosVivos(celula);
           celula.calcularSiguienteEstado(vecinosVivos);
       }
-    }
+   }
   }
 
   // Método para actualizar el estado de todas las células en el tablero
   actualizarEstadoTablero() {
     for (let p = 0; p < this.#people; p++ ) {
+      let cont = 0;
       for (const celula of this.#celulas[p]) {
         celula.actualizarEstado();
+        cont++;
       }
     }
   }
@@ -295,15 +302,6 @@ class Tablero {
       }
     }
     return vecinosVivos;
-  }
-
-  // Método para actualizar el estado de todas las células en el tablero
-  actualizarEstadoTablero() {
-    for (let p=0; p< this.#people; p++) {
-      for (const celula of this.#celulas[p]) {
-        celula.actualizarEstado();
-      }
-    }
   }
   
   // Método para iniciar o detener la animación del juego
@@ -368,11 +366,13 @@ class Tablero {
     }
   }
 }
-/* FIN DE CLASES */
+/* FIN DECLARACION DE CLASES */
 /// MAIN
 let tableroGoLife = 0;
 let tableroExist = false;
 let animacionPausada = false;
+const INTERVAL  = 350;
+const INTERV_DIBUJA = INTERVAL * 0.9;
 let timeScale = 1;
 /**
  *  Pausar en caso de Tablero Vacío
@@ -383,41 +383,42 @@ function tabVacPausar () {
   console.log("animación pausada automaticamente");      
 }
 
-
 // Función para inicializar y comenzar el juego
-function iniciarJuego(newConf, fil, col, num, pargol) {
-  if(num==10){ timeScale = 0.5;} else {timeScale = num;}
-  console.log("newConfig: "+newConf);
+function iniciarJuego(newConf, fil, col, num, algo, pargol) {
+  if(num==TAB_VACIO){ timeScale = 0.9;} else {timeScale = num;}
+  console.log("Config Inicial(new): "+newConf);
   if (tableroExist === false) {
     console.log("Carga 1ra configuración");
     tableroExist = true;
-    tableroGoLife = new Tablero(fil, col, "canvas", num, pargol);
-    console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);
-    tableroGoLife.iniciarAnimacion(350 * timeScale); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
-    if (num == 10) {
+    tableroGoLife = new Tablero(fil, col, "canvas", num, algo, pargol);
+    console.log(fil, col, num, algo, pargol[0], pargol[1], pargol[2], pargol[3]);
+    //console.table(pargol);
+    tableroGoLife.iniciarAnimacion(INTERVAL * timeScale); // Comienza la animación con un retraso de xxx ms (10 cuadros por segundo)
+    if (num == TAB_VACIO) {
       setTimeout(tabVacPausar, 500);
     }
   }
   else {
     if (newConf === true) {
-        tableroGoLife.inicializatTab (fil, col, "canvas", num, pargol);
+        tableroGoLife.inicializatTab (fil, col, "canvas", num, algo, pargol);
         console.log("Recarga Nueva Configuración: ");
-        console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);
-        if (num == 10) {
-          setTimeout(tabVacPausar, 500);
+        console.log(fil, col, num, algo, pargol[0], pargol[1], pargol[2], pargol[3]);
+        if (num == TAB_VACIO) {
+          setTimeout(tabVacPausar, INTERVAL);
         }
     }
     if (animacionPausada == true) {
       // Si la animación está pausada, se reanuda (no es necesario recargar...)
-      tableroGoLife.iniciarAnimacion(350 * timeScale);
+      tableroGoLife.iniciarAnimacion(INTERVAL * timeScale);
       animacionPausada = false;
-      console.log("ahora reaunuda....");
-      console.log(fil, col, num, pargol[0], pargol[1], pargol[2], pargol[3]);   
+      console.log("ahora se reaunuda....");
+      console.log(fil, col, num, algo, pargol[0], pargol[1], pargol[2], pargol[3]); 
+      //console.table(pargol);
     } else {
       tableroGoLife.cancelarAnimacion();
       animacionPausada = true;
-      console.log("animación pasa a pausada");  
-      }
+      console.log("animación pausada");  
+    }
   }  
 }
 
